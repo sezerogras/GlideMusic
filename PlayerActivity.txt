@@ -1,0 +1,448 @@
+public class PlayerActivity extends AppCompatActivity {
+
+    Button btnplay , btnnext , btnprev, btnff, btnfr;
+    TextView txtsname, txtsstart, txtsstop;
+    SeekBar seekmusic;
+    BarVisualizer  visualizer;
+
+    String sname;
+    public static final String EXTRA_NAME = "song name";
+
+    static MediaPlayer mediaPlayer;
+    int position;
+    ArrayList<EMusic> mysongs;
+    Thread updateseekbar;
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+if(item.getItemId()== android.R.id.home){
+    onBackPressed();
+}
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        if(visualizer != null){
+            visualizer.release();
+        }
+
+        super.onDestroy();
+    }
+
+    ImageView imageView;
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_player);
+
+        getSupportActionBar().setTitle("Now Playing");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        btnprev = findViewById(R.id.prevbutton);
+        btnff = findViewById(R.id.btnff);
+        btnfr = findViewById(R.id.btnfr);
+        btnplay = findViewById(R.id.playbutton);
+        btnnext = findViewById(R.id.nextbuton);
+        txtsname = findViewById(R.id.txtsn);
+        txtsstart = findViewById(R.id.txtsstart);
+        txtsstop = findViewById(R.id.txtsstop);
+        visualizer = findViewById(R.id.blast);
+        imageView  = findViewById(R.id.imageview);
+seekmusic= findViewById(R.id.seekbar);
+
+        mysongs = findSong();
+
+
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+
+        }
+
+        Intent i = getIntent();
+        Bundle bundle = i.getExtras();
+
+
+
+
+        position = bundle.getInt("pos", 0);
+        txtsname.setSelected(true)
+        ;
+
+
+        sname = mysongs.get(position).getTitle();
+        txtsname.setText(sname);
+
+        mediaPlayer = MediaPlayer.create(getApplicationContext(), mysongs.get(position).getSoundId());
+        mediaPlayer.start();
+
+        updateseekbar = new Thread(){
+
+            @Override
+            public void run(){
+
+                int totalDuration = mediaPlayer.getDuration();
+                int currentposition = 0;
+                while (currentposition<totalDuration){
+
+                    try{
+                        sleep(500);
+                        currentposition = mediaPlayer.getCurrentPosition();
+                        seekmusic.setProgress(currentposition);
+
+                    }
+                    catch (InterruptedException | IllegalStateException e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        seekmusic.setMax(mediaPlayer.getDuration());
+        updateseekbar.start();
+        seekmusic.getProgressDrawable().setColorFilter(getResources().getColor(R.color.design_default_color_primary), PorterDuff.Mode.MULTIPLY);
+        seekmusic.getThumb().setColorFilter(getResources().getColor(R.color.design_default_color_primary),PorterDuff.Mode.SRC_IN);
+
+        seekmusic.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+                mediaPlayer.seekTo(seekBar.getProgress());
+
+            }
+        });
+        String endTime = createTime(mediaPlayer.getDuration());
+        txtsstop.setText(endTime);
+
+        final Handler handler = new Handler();
+        final int delay = 1000;
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                String currentTime = createTime(mediaPlayer.getCurrentPosition());
+                txtsstart.setText(currentTime);
+                handler.postDelayed(this,delay);
+
+
+            }
+        },delay);
+
+
+
+
+
+
+
+        btnplay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mediaPlayer.isPlaying()) {
+                    btnplay.setBackgroundResource(R.drawable.ic_play);
+                    mediaPlayer.pause();
+                } else {
+                    btnplay.setBackgroundResource(R.drawable.ic_pause);
+                    mediaPlayer.start();
+                }
+            }
+        });
+
+        // next listener
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                btnnext.performClick();
+
+            }
+        });
+
+        int audiosessionId = mediaPlayer.getAudioSessionId();
+        if (audiosessionId!= -1)
+        {
+            visualizer.setAudioSessionId(audiosessionId);
+        }
+
+        btnnext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mediaPlayer.stop();
+                mediaPlayer.release();
+                position = ((position+1)%mysongs.size()) ;
+
+
+                mediaPlayer = MediaPlayer.create(getApplicationContext(),mysongs.get(position).getSoundId());
+                sname = mysongs.get(position).getTitle();
+                txtsname.setText(sname);
+                mediaPlayer.start();
+                btnplay.setBackgroundResource(R.drawable.ic_pause);
+                startAnimation(imageView);
+
+                int audiosessionId = mediaPlayer.getAudioSessionId();
+                if (audiosessionId!= -1)
+                {
+                    visualizer.setAudioSessionId(audiosessionId);
+                }
+
+
+
+
+            }
+        });
+
+        btnprev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mediaPlayer.stop();
+                mediaPlayer.release();
+                position = ((position-1)<0)?(mysongs.size()-1):(position-1);
+
+
+                mediaPlayer= MediaPlayer.create(getApplicationContext(),mysongs.get(position).getSoundId());
+                sname = mysongs.get(position).getTitle();
+                txtsname.setText(sname);
+                mediaPlayer.start();
+                btnplay.setBackgroundResource(R.drawable.ic_pause);
+                startAnimation(imageView);
+                int audiosessionId = mediaPlayer.getAudioSessionId();
+                if (audiosessionId!= -1)
+                {
+                    visualizer.setAudioSessionId(audiosessionId);
+                }
+
+            }
+        });
+
+
+        btnff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mediaPlayer.isPlaying()){
+                    mediaPlayer.seekTo(mediaPlayer.getCurrentPosition()+100);
+
+                }
+            }
+        });
+
+        btnfr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mediaPlayer.isPlaying()){
+                    mediaPlayer.seekTo(mediaPlayer.getCurrentPosition()-10000);
+                }
+            }
+        });
+
+    }
+
+
+
+
+    public void startAnimation(View view){
+        ObjectAnimator animator = ObjectAnimator.ofFloat(imageView,"rotation",0f,360f);
+        animator.setDuration(1000);
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.start();
+
+
+    }
+
+    public String createTime(int duration){
+
+        String time = "";
+        int min = duration /1000/60;
+        int sec = duration/1000%60;
+        time+="0" ;
+        if (sec<10){
+
+            time+="0";
+        }
+        time+=sec;
+return time;
+    }
+
+    public ArrayList<EMusic> findSong( ){
+        ArrayList<EMusic> arrayList = new ArrayList<>();
+
+        EMusic music = new EMusic();
+        music.setTitle("Serdar ortaç - Mesafe");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.mesafe);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Ahmet kaya - Karayazı");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.ahmetkaya);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("yüzyüzeyken konuşuruz-Sen varsın diye");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.sen);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("yüzyüzeyken konuşuruz-dinle beni");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.dinle);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Ufuk Baydemir-Ay tenli kadın");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.aytenli);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("pinhani-Hele bi gel");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.helebigel);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("pinhani-Dünyadan uzak");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.dunyadanuzak);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Sezen Aksu- vazgeçtim");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.vazgectim);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Sezen Aksu- Yansın istanbul bu gece");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.yansinistanbul);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Ahmet Aslan-Tanımadığım ten ");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.ten);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Madrigal-Seni dert etmeler ");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.senidertetmeler);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Manuş baba - Bu havada gidilmez");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.buhavadagidilmez);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Yüksek Sadakat-kafile");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.kafile);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("İkiye on kala - Kafamda kentsel dönüşümler");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.kentsel);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Adamlar -  Zombi");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.zombi);
+        arrayList.add(music);
+
+
+
+        music = new EMusic();
+        music.setTitle("Mabel Matiz - Gel");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.mabelgel);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Duman - Öyle dertli");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.oyledertli);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Zeynep Bastık -  Felaket");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.felaket);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("İkilem - Kaybolurum gülüşünde  ");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.kaybolurum);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Seksendört -  Ölürüm hasretinle  ");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.olurumhasretinle);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("İkiye on kala - Bütün istanbul biliyor");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.butunistanbulbiliyo);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Dedüblüman - Çağrı Çelik - Gamzedeyim deva bulmam");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.dedublumancagricelik);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Can Ozan - Sar bu şehri");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.sarbusehri);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Queen - I want to break free ");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.iwant);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Selena Gomez - Rare");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.rare);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Lady Gaga - Hold my hand");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.holdmyhand);
+        arrayList.add(music);
+
+
+
+
+
+
+
+        return arrayList;
+    }
+}

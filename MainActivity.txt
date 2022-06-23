@@ -1,0 +1,268 @@
+MainActivity kodları
+public class MainActivity extends AppCompatActivity {
+
+    ListView listView;
+    ArrayList<EMusic> myMusicList;
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        listView = findViewById(R.id.listViewSong);
+
+        myMusicList = findSong();
+
+        runtimePermission();
+
+
+
+    }
+
+    public void runtimePermission()
+    {
+
+        Dexter.withContext(this).withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.RECORD_AUDIO)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
+                        displaySongs();
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
+
+                        permissionToken.continuePermissionRequest();
+                    }
+                }).check();
+    }
+
+    public ArrayList<EMusic> findSong( ){
+        ArrayList<EMusic> arrayList = new ArrayList<>();
+
+        EMusic music = new EMusic();
+        music.setTitle("Serdar Ortaç - Mesafe");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.mesafe);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Ahmet Kaya - Karayazı");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.mesafe);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("yüzyüzeyken konuşuruz-Sen varsın diye");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.sen);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("yüzyüzeyken konuşuruz-dinle beni");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.dinle);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Ufuk Baydemir-Ay tenli kadın");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.aytenli);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("pinhani-Hele bi gel");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.helebigel);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("pinhani-Dünyadan uzak");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.dunyadanuzak);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Sezen Aksu- vazgeçtim");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.vazgectim);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Sezen Aksu- Yansın istanbul bu gece");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.yansinistanbul);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Ahmet Aslan-Tanımadığım ten ");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.ten);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Madrigal-Seni dert etmeler ");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.senidertetmeler);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Manuş baba - Bu havada gidilmez");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.buhavadagidilmez);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Yüksek Sadakat-kafile");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.kafile);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("İkiye on kala - Kafamda kentsel dönüşümler");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.kentsel);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Adamlar -  Zombi");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.zombi);
+        arrayList.add(music);
+
+
+
+        music = new EMusic();
+        music.setTitle("Mabel Matiz - Gel");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.mabelgel);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Duman - Öyle dertli");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.oyledertli);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Zeynep Bastık -  Felaket");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.felaket);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("İkilem - Kaybolurum gülüşünde ");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.kaybolurum);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Seksendört -  Ölürüm hasretinle  ");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.olurumhasretinle);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("İkiye on kala - Bütün istanbul biliyor");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.butunistanbulbiliyo);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Dedüblüman - Çağrı Çelik - Gamzedeyim deva bulmam");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.dedublumancagricelik);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Can Ozan - Sar bu şehri");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.sarbusehri);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Queen - I want to break free ");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.iwant);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Selena Gomez - Rare");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.rare);
+        arrayList.add(music);
+
+        music = new EMusic();
+        music.setTitle("Lady Gaga - Hold my hand");
+        music.setImage(R.drawable.ic_pause);
+        music.setSoundId(R.raw.holdmyhand);
+        arrayList.add(music);
+
+
+
+
+
+
+
+
+
+
+        return arrayList;
+    }
+
+    void displaySongs()
+    {
+
+
+       /* ArrayAdapter<String> myAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
+       listView.setAdapter(myAdapter);
+
+        */
+
+        customAdapter customAdapter = new customAdapter();
+        listView.setAdapter(customAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+               String songName = (String) listView.getItemAtPosition(position);
+               startActivity(new Intent(getApplicationContext(),PlayerActivity.class)
+
+                       .putExtra("pos",position)
+               ) ;
+            }
+        });
+
+    }
+
+
+    class  customAdapter extends BaseAdapter{
+
+        @Override
+        public int getCount() {
+
+            return myMusicList.size();
+
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View myView = getLayoutInflater().inflate(R.layout.list_item,null);
+            TextView textsong = myView.findViewById(R.id.txtsongname);
+            textsong.setSelected(true);
+            textsong.setText(myMusicList.get(position).getTitle());
+            return myView;
+        }
+    }
+}
